@@ -1,0 +1,67 @@
+<link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>    
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+    input { width: 100%; height: 35px; }
+
+    #messages { list-style-type: none;
+                margin: 0;
+                padding: 0; }
+
+    #messages li {
+        padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+        background: #eee;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+       <div class="col-sm-12">
+           <form id="message-form">
+               <div class="col-sm-10">
+                    <input id="user-message" type="text" placeholder="Enter your Message" />
+               </div>
+               <div class="col-sm-2">
+                    <input class="btn btn-primary" type="submit" value="Send!" />
+               </div>
+           </form>
+           <br /><br/ ><br />
+           <ul id="messages">
+
+           </ul>
+       </div> 
+    </div>
+
+</div>
+<script>
+    const socket = io('http://localhost:9000');
+    const socket1 = io('http://localhost:9000/admin');
+
+    socket.on('connect', () => {
+        console.log(socket.id);
+    });
+                // event listener.
+    socket.on('messageFromServer', (dataFromServer) => {
+        console.log(dataFromServer);
+        
+                    // this is the event.
+        socket.emit('messageToServer', {data: "This is from the client"});   
+       // console.log(socket.id);
+    });
+    document.getElementById("message-form").addEventListener('submit', (event) => {
+        event.preventDefault();
+        console.log("Form!!!");
+        const newMessage = document.getElementById("user-message").value;
+        console.log(newMessage);
+        socket.emit('newMessageToServer', {text : newMessage});
+    });
+
+    socket.on('messageToClients', (msg) => {
+        console.log(msg);
+        document.querySelector('#messages').innerHTML += '<li>' + msg.text + '</li>';
+    });
+
+</script>
